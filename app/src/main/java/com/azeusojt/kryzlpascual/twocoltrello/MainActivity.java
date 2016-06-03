@@ -3,7 +3,7 @@ package com.azeusojt.kryzlpascual.twocoltrello;
 import android.app.Activity;
 import android.content.ClipData;
 import android.content.Context;
-import android.support.v4.content.ContextCompat;
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.DragEvent;
@@ -11,7 +11,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -256,5 +255,21 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean insert (List<Task> l, Task t) {
         return l.add (t);
+    }
+
+    public void addTask (View v) {
+        Intent i = new Intent (this, AddTaskScreen2.class);
+        startActivity (i);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Intent i = getIntent();
+        String[] info = i.getStringArrayExtra("info");
+        if (info != null) {
+            Task t = new Task(info[0], info[1]);
+            todoTasks.add(t);
+        }
     }
 }

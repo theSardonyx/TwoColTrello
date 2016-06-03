@@ -10,6 +10,16 @@
     android:orientation="vertical"
     tools:context="com.azeusojt.kryzlpascual.twocoltrello.MainActivity">
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/addTask"
+        android:layout_gravity="right"
+        android:onClick="addTask"
+        android:background="@color/colorPrimary"
+        android:textColor="@color/silver"
+        android:layout_marginBottom="5dp"/>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -22,7 +32,7 @@
             android:layout_weight="1"
             android:gravity="center_horizontal"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:background="@color/colorPrimary"
+            android:background="@color/colorPrimaryDark"
             android:textColor="@color/silver"
             android:layout_marginRight="5dp"/>
 
@@ -33,7 +43,7 @@
             android:layout_weight="1"
             android:gravity="center_horizontal"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:background="@color/colorPrimary"
+            android:background="@color/colorPrimaryDark"
             android:textColor="@color/silver"
             android:layout_marginLeft="5dp"/>
 
