@@ -16,6 +16,14 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,20 +34,14 @@ public class MainActivity extends AppCompatActivity {
 
     int resumeColor = 0x000000;
 
-    String[] bands = {"One OK Rock", "Kagamine Rin/Len", "Yiruma", "Kalafina", "Blue"};
-    String[] songs = {"Clock Strikes, Pierce, Et Cetera, Kagerou, Kemuri, Nichijou Evolution, Jibun Rock, Paper Planes, Memories",
-                    "Fire Flower, Suki Daisuki, Proof of Life, Soundless Voice, Ike Lenka, Kami Hikouki, Shuujin, Nazotoki, Nazokake",
-                    "Letter, River Flows in You, Kiss the Rain, Chaconne, I",
-                    "Magia, Heavenly Blue, Aria, Oblivious, Progressive, Moonfesta, Kizuato, Serenato, Kyrie, Manten, To the Beginning",
-                    "Black Box, Bubblin', Fly By, All Rise, Taste It, How's a Man Supposed to Change"};
     String[] toasties = {"Best Rock Band Evah", "Twiins", "Piano Prodigy", "Keiko, Hikaru, Wakana", "Some British Boy Band"};
 
     public class Task {
         String title, desc;
 
-        Task (String title, String desc) {
-            this.title = title;
-            this.desc = desc;
+        Task (String t, String d) {
+            title = t;
+            desc = d;
         }
     }
 
@@ -243,10 +245,22 @@ public class MainActivity extends AppCompatActivity {
     private void initTasks() {
         todoTasks = new ArrayList<Task>();
         doneTasks = new ArrayList<Task>();
-
-        for (int i = 0; i < bands.length; i++) {
-            todoTasks.add (new Task (bands[i], songs[i]));
-        }
+        try {
+            BufferedInputStream bf = new BufferedInputStream(openFileInput("taskList.val"));
+            BufferedReader reader = new BufferedReader (new InputStreamReader (bf));
+            String line;
+            try {
+                //assuming no newline characters in desc string
+                while ((line = reader.readLine()) != null) {
+                    String[] curr = line.split ("\\|");
+                    Task t = new Task (curr[0], curr[1]);
+                    if (curr[2].equals("todo"))
+                        todoTasks.add (t);
+                    else doneTasks.add (t);
+                }
+                reader.close();
+            } catch (IOException e) {}
+        } catch (FileNotFoundException e) {}
     }
 
     private boolean remove (List<Task> l, Task t) {
@@ -259,17 +273,49 @@ public class MainActivity extends AppCompatActivity {
 
     public void addTask (View v) {
         Intent i = new Intent (this, AddTaskScreen2.class);
-        startActivity (i);
+        startActivityForResult (i, 1);
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        Intent i = getIntent();
-        String[] info = i.getStringArrayExtra("info");
-        if (info != null) {
-            Task t = new Task(info[0], info[1]);
-            todoTasks.add(t);
+    protected void onActivityResult(int code, int result, Intent data) {
+        if (code == 1) {
+            if (result == Activity.RESULT_OK) {
+                String[] info = data.getStringArrayExtra("info");
+                if (info != null) {
+                    Task t = new Task(info[0], info[1]);
+                    todoTasks.add(t);
+                }
+                listTodo.setAdapter (new ForTwoAdapter (MainActivity.this, todoTasks));
+            }
         }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        saveFiles();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        saveFiles();
+    }
+
+    private void saveFiles() {
+        try {
+            BufferedOutputStream bf = new BufferedOutputStream (openFileOutput("taskList.val", Context.MODE_PRIVATE));
+            BufferedWriter writer = new BufferedWriter (new OutputStreamWriter (bf));
+            String curr;
+            for (Task t : todoTasks) {
+                curr = t.title + "|" + t.desc + "|todo\n";
+                writer.write (curr);
+            }
+            for (Task t : doneTasks) {
+                curr = t.title + "|" + t.desc + "|done\n";
+                writer.write (curr);
+            }
+            writer.close();
+        } catch (Exception e) {}
     }
 }

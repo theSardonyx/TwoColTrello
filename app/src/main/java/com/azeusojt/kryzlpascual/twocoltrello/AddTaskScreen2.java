@@ -1,5 +1,6 @@
 package com.azeusojt.kryzlpascual.twocoltrello;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -14,13 +15,14 @@ public class AddTaskScreen2 extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_task_screen);
+        setContentView(R.layout.activity_add_task_screen2);
 
         txtTitle = (EditText) findViewById (R.id.newTaskTitle);
         txtDesc = (EditText) findViewById (R.id.newTaskDesc);
     }
 
     public void cancel (View v) {
+        setResult(Activity.RESULT_CANCELED);
         finish();
     }
 
@@ -31,9 +33,10 @@ public class AddTaskScreen2 extends AppCompatActivity {
             Toast.makeText (this, "Please input a title.", Toast.LENGTH_SHORT).show();
         else {
             String[] info = {title, desc};
-            Intent i = new Intent(this, MainActivity.class);
+            Intent i = new Intent();
             i.putExtra("info", info);
-            startActivity(i);
+            setResult (Activity.RESULT_OK, i);
+            finish();
         }
     }
 }
