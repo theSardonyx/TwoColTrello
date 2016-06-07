@@ -15,7 +15,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".AddTaskScreen2"></activity>
+        <activity android:name=".AddTaskScreen2" />
+        <activity android:name=".EditTaskScreen"></activity>
     </application>
 
 </manifest>

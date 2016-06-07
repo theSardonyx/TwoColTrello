@@ -1,6 +1,9 @@
 package com.azeusojt.kryzlpascual.twocoltrello;
 
 import android.app.Activity;
+import android.app.DialogFragment;
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
@@ -33,8 +36,6 @@ public class MainActivity extends AppCompatActivity {
     ListView listTodo, listDone;
 
     int resumeColor = 0x000000;
-
-    String[] toasties = {"Best Rock Band Evah", "Twiins", "Piano Prodigy", "Keiko, Hikaru, Wakana", "Some British Boy Band"};
 
     public class Task {
         String title, desc;
@@ -89,7 +90,13 @@ public class MainActivity extends AppCompatActivity {
     class Clickety implements AdapterView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            Toast.makeText(MainActivity.this, toasties[position], Toast.LENGTH_SHORT).show();
+            Task select = (Task) parent.getItemAtPosition (position);
+            Intent i = new Intent (MainActivity.this, EditTaskScreen.class);
+            i.putExtra ("title", select.title);
+            i.putExtra ("desc", select.desc);
+            i.putExtra ("pos", position);
+            i.putExtra ("from", parent.getId());
+            startActivityForResult (i, 2);
         }
     }
 
@@ -285,7 +292,27 @@ public class MainActivity extends AppCompatActivity {
                     Task t = new Task(info[0], info[1]);
                     todoTasks.add(t);
                 }
-                listTodo.setAdapter (new ForTwoAdapter (MainActivity.this, todoTasks));
+                ForTwoAdapter adapt = (ForTwoAdapter) listTodo.getAdapter();
+                adapt.notifyDataSetChanged();
+            }
+        } else if (code == 2) {
+            if (result == Activity.RESULT_OK) {
+                String mode = data.getStringExtra("mode");
+                int pos = data.getIntExtra ("pos", -1);
+                int from = data.getIntExtra ("from", 0);
+                ListView which = (ListView) findViewById (from);
+                ForTwoAdapter adapt = (ForTwoAdapter) which.getAdapter();
+                List<Task> arr = adapt.getList();
+                Task t = arr.get (pos);
+                if (mode.equals ("save")) {
+                    String[] info = data.getStringArrayExtra ("info");
+                    Task n = new Task (info[0], info[1]);
+                    if (remove (arr, t))
+                        arr.add (pos, n);
+                } else {
+                    remove (arr, t);
+                }
+                adapt.notifyDataSetChanged();
             }
         }
     }
@@ -297,8 +324,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    protected void onStop() {
+        super.onStop();
         saveFiles();
     }
 
