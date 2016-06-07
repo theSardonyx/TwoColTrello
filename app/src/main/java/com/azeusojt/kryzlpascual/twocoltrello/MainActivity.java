@@ -32,8 +32,8 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    List<Task> todoTasks, doneTasks;
-    ListView listTodo, listDone;
+    List<Task> todoTasks, doneTasks, dvlpTasks, testTasks;
+    ListView listTodo, listDone, listDvlp, listTest;
 
     int resumeColor = 0x000000;
 
@@ -69,21 +69,35 @@ public class MainActivity extends AppCompatActivity {
         initTasks();
 
         listTodo = (ListView) findViewById (R.id.todo);
+        listDvlp = (ListView) findViewById (R.id.dvlp);
+        listTest = (ListView) findViewById (R.id.test);
         listDone = (ListView) findViewById (R.id.done);
 
         ForTwoAdapter forTodo = new ForTwoAdapter (MainActivity.this, todoTasks);
         listTodo.setAdapter (forTodo);
 
+        ForTwoAdapter forDvlp = new ForTwoAdapter (MainActivity.this, dvlpTasks);
+        listDvlp.setAdapter (forDvlp);
+
+        ForTwoAdapter forTest = new ForTwoAdapter (MainActivity.this, testTasks);
+        listTest.setAdapter (forTest);
+
         ForTwoAdapter forDone = new ForTwoAdapter (MainActivity.this, doneTasks);
         listDone.setAdapter (forDone);
 
         listTodo.setOnItemClickListener(new Clickety());
+        listDvlp.setOnItemClickListener(new Clickety());
+        listTest.setOnItemClickListener(new Clickety());
         listDone.setOnItemClickListener(new Clickety());
 
         listTodo.setOnItemLongClickListener(new LongClick());
+        listDvlp.setOnItemLongClickListener(new LongClick());
+        listTest.setOnItemLongClickListener(new LongClick());
         listDone.setOnItemLongClickListener(new LongClick());
 
         listTodo.setOnDragListener(new DragThere());
+        listDvlp.setOnDragListener(new DragThere());
+        listTest.setOnDragListener(new DragThere());
         listDone.setOnDragListener(new DragThere());
     }
 
@@ -194,6 +208,7 @@ public class MainActivity extends AppCompatActivity {
                 newP.smoothScrollToPosition(dest.getCount() - 1);
             }
 
+            saveFiles();
             return true;
         }
     }
@@ -251,7 +266,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void initTasks() {
         todoTasks = new ArrayList<Task>();
+        dvlpTasks = new ArrayList<Task>();
+        testTasks = new ArrayList<Task>();
         doneTasks = new ArrayList<Task>();
+
         try {
             BufferedInputStream bf = new BufferedInputStream(openFileInput("taskList.val"));
             BufferedReader reader = new BufferedReader (new InputStreamReader (bf));
@@ -263,6 +281,10 @@ public class MainActivity extends AppCompatActivity {
                     Task t = new Task (curr[0], curr[1]);
                     if (curr[2].equals("todo"))
                         todoTasks.add (t);
+                    else if (curr[2].equals ("dvlp"))
+                        dvlpTasks.add (t);
+                    else if (curr[2].equals ("test"))
+                        testTasks.add (t);
                     else doneTasks.add (t);
                 }
                 reader.close();
@@ -315,17 +337,12 @@ public class MainActivity extends AppCompatActivity {
                 adapt.notifyDataSetChanged();
             }
         }
+        saveFiles();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        saveFiles();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
         saveFiles();
     }
 
@@ -336,6 +353,14 @@ public class MainActivity extends AppCompatActivity {
             String curr;
             for (Task t : todoTasks) {
                 curr = t.title + "|" + t.desc + "|todo\n";
+                writer.write (curr);
+            }
+            for (Task t : dvlpTasks) {
+                curr = t.title + "|" + t.desc + "|dvlp\n";
+                writer.write (curr);
+            }
+            for (Task t : testTasks) {
+                curr = t.title + "|" + t.desc + "|test\n";
                 writer.write (curr);
             }
             for (Task t : doneTasks) {

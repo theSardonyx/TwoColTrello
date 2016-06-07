@@ -1,6 +1,8 @@
 <resources>
-    <string name="app_name">Two Column Kanban</string>
+    <string name="app_name">Four Column Kanban</string>
     <string name="to_do">To Do</string>
+    <string name="dev">In Development</string>
+    <string name="test">Testing</string>
     <string name="done">Done</string>
     <string name="addTask">New Task</string>
     <string name="title">Title :</string>
